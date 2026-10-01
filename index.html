@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Expense Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand">Expense Tracker</div>
+    <nav class="tabs" aria-label="Main">
+      <button type="button" class="active" data-view="dash" aria-current="page">Dashboard</button>
+      <button type="button" data-view="more" aria-current="false">More</button>
+    </nav>
+    <div class="tools">
+      <div class="month-nav" role="group" aria-label="Choose month">
+        <button id="prevMonth" aria-label="Previous month">&#8249;</button>
+        <span id="monthLabel" aria-live="polite"></span>
+        <button id="nextMonth" aria-label="Next month">&#8250;</button>
+      </div>
+      <select id="currency" class="select" aria-label="Currency">
+        <option value="INR">INR (₹)</option>
+        <option value="USD">USD ($)</option>
+        <option value="EUR">EUR (€)</option>
+        <option value="GBP">GBP (£)</option>
+      </select>
+    </div>
+  </header>
+
+  <div id="viewDash">
+  <section class="panel summary" aria-label="Monthly summary">
+    <div class="metric">
+      <div class="label">Spent</div>
+      <div class="value" id="mSpent">0</div>
+      <div class="sub" id="mSpentSub"></div>
+    </div>
+    <div class="metric">
+      <div class="label">Income</div>
+      <div class="value" id="mIncome">0</div>
+      <div class="sub" id="mIncomeSub"></div>
+    </div>
+    <div class="metric">
+      <div class="label">Net balance</div>
+      <div class="value" id="mNet">0</div>
+      <div class="sub">Income minus spending</div>
+    </div>
+    <div class="metric" id="budgetBox"></div>
+  </section>
+
+  <div class="grid">
+    <main class="stack">
+
+      <section class="panel" id="insightsPanel" hidden>
+        <div class="panel-head"><h2>Insights</h2></div>
+        <div class="panel-body"><ul class="insights" id="insights"></ul></div>
+      </section>
+
+      <div class="duo">
+        <section class="panel">
+          <div class="panel-head"><h2>Spending by category</h2></div>
+          <div class="panel-body" id="breakdown"></div>
+        </section>
+        <section class="panel trend">
+          <div class="panel-head"><h2>Last 6 months</h2><span class="muted small">Total spent</span></div>
+          <div class="panel-body" id="trend"></div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="panel-head"><h2>Transactions</h2><span class="muted small" id="txCount"></span></div>
+        <div class="filters">
+          <input id="search" class="input" type="search" placeholder="Search description" aria-label="Search transactions">
+          <select id="filterCat" class="select" aria-label="Filter by category"></select>
+        </div>
+        <div id="txWrap"></div>
+      </section>
+    </main>
+
+    <aside class="side">
+      <section class="panel">
+        <div class="panel-head"><h2>Add transaction</h2></div>
+        <div class="panel-body">
+          <form id="form" novalidate>
+            <div class="seg" role="radiogroup" aria-label="Transaction type">
+              <input type="radio" name="type" id="tExp" value="expense" checked>
+              <label for="tExp">Expense</label>
+              <input type="radio" name="type" id="tInc" value="income">
+              <label for="tInc">Income</label>
+            </div>
+            <div class="field">
+              <label for="amount">Amount</label>
+              <input id="amount" class="input" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00">
+            </div>
+            <div class="field">
+              <label for="desc">Description</label>
+              <input id="desc" class="input" type="text" maxlength="60" autocomplete="off">
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label for="cat">Category</label>
+                <select id="cat" class="select"></select>
+              </div>
+              <div class="field">
+                <label for="date">Date</label>
+                <input id="date" class="input" type="date">
+              </div>
+            </div>
+            <p class="form-error" id="formError" role="alert"></p>
+            <button class="btn-primary" type="submit">Add transaction</button>
+          </form>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  </div>
+
+  <div id="viewMore" hidden>
+    <div class="subtabs" role="tablist" aria-label="More tools">
+      <button type="button" role="tab" data-tool="split" aria-selected="true">Split bill</button>
+      <button type="button" role="tab" data-tool="limits" aria-selected="false">Budget limits</button>
+    </div>
+
+    
+    <section id="toolSplit">
+      <p class="tool-intro">Split a shared bill and track who has paid. Mark each payment Yes or No.</p>
+      <div class="grid">
+        <div class="stack"><section class="panel" id="splitResult"></section></div>
+        <aside class="side">
+          <section class="panel">
+            <div class="panel-head"><h2>Bill details</h2></div>
+            <div class="panel-body">
+              <div class="field">
+                <label for="splitTotal">Total bill</label>
+                <input id="splitTotal" class="input" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00">
+              </div>
+              <div class="field">
+                <label for="splitDesc">What is it for?</label>
+                <input id="splitDesc" class="input" type="text" maxlength="60" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="splitPayer">Who paid the bill?</label>
+                <select id="splitPayer" class="select">
+                  <option value="me">I paid</option>
+                  <option value="other">Someone else paid</option>
+                </select>
+              </div>
+              <div class="field" id="payerNameBox" hidden>
+                <label for="splitPayerName">Name of the person who paid</label>
+                <input id="splitPayerName" class="input" type="text" maxlength="40" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="splitPeople" id="splitPeopleLabel">Who is splitting with you?</label>
+                <textarea id="splitPeople" class="input" rows="4" placeholder="One name per line"></textarea>
+              </div>
+              <div class="field">
+                <label for="splitMode">Split</label>
+                <select id="splitMode" class="select">
+                  <option value="equal">Equally</option>
+                  <option value="custom">Custom amounts</option>
+                </select>
+              </div>
+              <div id="splitCustom" hidden></div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+  
+    <section id="toolLimits" hidden>
+      <p class="tool-intro">Set an overall monthly limit and optional limits for each category. Progress is for the month shown at the top.</p>
+      <div class="stack" id="limitsOut"></div>
+    </section>
+
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span><button id="toastUndo" type="button">Undo</button></div>
+
+
+</body>
+<script src="script.js"></script>
+</html>
